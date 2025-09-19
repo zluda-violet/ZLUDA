@@ -2453,31 +2453,78 @@ impl<'a> MethodEmitContext<'a> {
         control: u16,
         arguments: ptx_parser::PrmtArgs<SpirvWord>,
     ) -> Result<(), TranslateError> {
-        let components = [
-            (control >> 0) & 0b1111,
-            (control >> 4) & 0b1111,
-            (control >> 8) & 0b1111,
-            (control >> 12) & 0b1111,
+        let component_literals = [
+            (control >> 0) & 0b111,
+            (control >> 4) & 0b111,
+            (control >> 8) & 0b111,
+            (control >> 12) & 0b111,
         ];
-        if components.iter().any(|&c| c > 7) {
-            return Err(error_todo());
-        }
+        let component_signs = [
+            (control >> 0) & 0b1000 != 0,
+            (control >> 4) & 0b1000 != 0,
+            (control >> 8) & 0b1000 != 0,
+            (control >> 12) & 0b1000 != 0,
+        ];
         let u32_type = get_scalar_type(self.context, ast::ScalarType::U32);
+        let u8_type = get_scalar_type(self.context, ast::ScalarType::U8);
         let v4u8_type = get_type(self.context, &ast::Type::Vector(4, ast::ScalarType::U8))?;
         let mut components = [
-            unsafe { LLVMConstInt(u32_type, components[0] as _, 0) },
-            unsafe { LLVMConstInt(u32_type, components[1] as _, 0) },
-            unsafe { LLVMConstInt(u32_type, components[2] as _, 0) },
-            unsafe { LLVMConstInt(u32_type, components[3] as _, 0) },
+            unsafe { LLVMConstInt(u32_type, component_literals[0] as _, 0) },
+            unsafe { LLVMConstInt(u32_type, component_literals[1] as _, 0) },
+            unsafe { LLVMConstInt(u32_type, component_literals[2] as _, 0) },
+            unsafe { LLVMConstInt(u32_type, component_literals[3] as _, 0) },
         ];
         let components_indices =
             unsafe { LLVMConstVector(components.as_mut_ptr(), components.len() as u32) };
         let src1 = self.resolver.value(arguments.src1)?;
-        let src1_vector =
+        let mut src1_vector =
             unsafe { LLVMBuildBitCast(self.builder, src1, v4u8_type, LLVM_UNNAMED.as_ptr()) };
         let src2 = self.resolver.value(arguments.src2)?;
-        let src2_vector =
+        let mut src2_vector =
             unsafe { LLVMBuildBitCast(self.builder, src2, v4u8_type, LLVM_UNNAMED.as_ptr()) };
+        for (sign, component) in component_signs.into_iter().zip(component_literals) {
+            if sign {
+                // sign extend
+                let (vec, index) = match component {
+                    0 => (&mut src2_vector, 3),
+                    1 => (&mut src2_vector, 2),
+                    2 => (&mut src2_vector, 1),
+                    3 => (&mut src2_vector, 0),
+                    4 => (&mut src1_vector, 3),
+                    5 => (&mut src1_vector, 2),
+                    6 => (&mut src1_vector, 1),
+                    7 => (&mut src1_vector, 0),
+                    _ => return Err(error_unreachable()),
+                };
+                let index = unsafe { LLVMConstInt(u32_type, index, 0) };
+                let elem = unsafe {
+                    LLVMBuildExtractElement(self.builder, *vec, index, LLVM_UNNAMED.as_ptr())
+                };
+
+                let signed = unsafe {
+                    LLVMBuildICmp(
+                        self.builder,
+                        LLVMIntPredicate::LLVMIntSLT,
+                        elem,
+                        LLVMConstInt(u8_type, 0, 0),
+                        LLVM_UNNAMED.as_ptr(),
+                    )
+                };
+
+                let extended =
+                    unsafe { LLVMBuildSExt(self.builder, signed, u8_type, LLVM_UNNAMED.as_ptr()) };
+
+                *vec = unsafe {
+                    LLVMBuildInsertElement(
+                        self.builder,
+                        *vec,
+                        extended,
+                        index,
+                        LLVM_UNNAMED.as_ptr(),
+                    )
+                };
+            }
+        }
         self.resolver.with_result(arguments.dst, |dst| unsafe {
             LLVMBuildShuffleVector(
                 self.builder,
