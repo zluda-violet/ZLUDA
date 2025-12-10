@@ -927,6 +927,7 @@ fn generate_cublaslt(crate_root: &PathBuf) {
         .allowlist_function("^cublasLt.*")
         .allowlist_var("^CUBLASLT_.*")
         .must_use_type("cublasStatus_t")
+        .new_type_alias(r"^cublasLtHandle_t$")
         .allowlist_recursively(false)
         .clang_args(["-I/usr/local/cuda/include", "-x", "c++"])
         .generate()

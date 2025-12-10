@@ -209,6 +209,7 @@ fn compile_and_cache(
 }
 
 pub(crate) fn load(module: &mut CUmodule, fname: &CStr) -> CUresult {
+    println!("START cuModuleLoad");
     let mut image = fs::read(fname.to_str().map_err(|_| CUerror::INVALID_VALUE)?)
         .map_err(|_| CUerror::INVALID_VALUE)?;
     // Null-terminate the image, in case it's text
@@ -217,6 +218,7 @@ pub(crate) fn load(module: &mut CUmodule, fname: &CStr) -> CUresult {
         .map_err(|_| CUerror::NO_BINARY_FOR_GPU)?;
     let hip_module = load_hip_module(library)?;
     *module = Module { base: hip_module }.wrap();
+    println!("END cuModuleLoad");
     Ok(())
 }
 

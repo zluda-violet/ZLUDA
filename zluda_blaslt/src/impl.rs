@@ -268,6 +268,10 @@ pub(crate) fn matmul_preference_set_attribute(
     buf: *const ::core::ffi::c_void,
     size_in_bytes: usize,
 ) -> cublasStatus_t {
+    if attr == hipblasLtMatmulPreferenceAttributes_t::HIPBLASLT_MATMUL_PREF_MAX {
+        // Workaround: fail quietly for unsupported values
+        return Ok(());
+    }
     unsafe { hipblasLtMatmulPreferenceSetAttribute(pref, attr, buf, size_in_bytes) }?;
     Ok(())
 }

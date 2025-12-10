@@ -1456,7 +1456,7 @@ pub enum PtxError<'input> {
         #[from]
         source: ParseFloatError,
     },
-    #[error("{source}")]
+    #[error("Lexer error: {source}")]
     Lexer {
         #[from]
         source: TokenError,
@@ -2045,9 +2045,14 @@ derive_parser!(
 
     // https://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-ld
     ld{.weak}{.ss}{.cop}{.level::eviction_priority}{.level::cache_hint}{.level::prefetch_size}{.vec}.type   d, [a]{.unified}{, cache_policy} => {
+        // We ignore cache hints and eviction priority for now
+        let _level_eviction_priority = level_eviction_priority;
+        let _level_cache_hint = level_cache_hint;
+        let _cache_policy = cache_policy;
+
         let (a, unified) = a;
-        if level_eviction_priority.is_some() || level_cache_hint || level_prefetch_size.is_some() || unified || cache_policy.is_some() {
-            state.errors.push(PtxError::Todo("ld instruction with cache policy/eviction priority/cache hints/prefetch size".to_string()));
+        if level_prefetch_size.is_some() || unified {
+            state.errors.push(PtxError::Todo("ld instruction with prefetch size".to_string()));
         }
         Instruction::Ld {
             data: LdDetails {
@@ -3862,8 +3867,11 @@ derive_parser!(
     // https://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-cp-async
     cp.async.cop.space.global{.level::cache_hint}{.level::prefetch_size}
                              [dst], [src], cp-size{, src-size}{, cache-policy} => {
-        if level_cache_hint || cache_policy.is_some() || level_prefetch_size.is_some() {
-            state.errors.push(PtxError::Todo("cp.async instruction with cache policy/cache hints/prefetch size".to_string()));
+        // We ignore prefetch size for now
+        let _level_prefetch_size = level_prefetch_size;
+
+        if level_cache_hint || cache_policy.is_some() {
+            state.errors.push(PtxError::Todo("cp.async instruction with cache policy/cache hints".to_string()));
         }
 
         let cp_size = cp_size

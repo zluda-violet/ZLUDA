@@ -18,6 +18,7 @@ pub(crate) unsafe fn alloc_v2(dptr: &mut hipDeviceptr_t, bytesize: usize) -> CUr
     {
         hipMemsetD8(*dptr, 0, bytesize)?;
     }
+
     Ok(())
 }
 

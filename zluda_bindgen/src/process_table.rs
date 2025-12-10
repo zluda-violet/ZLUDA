@@ -594,27 +594,18 @@ match (name, flag) {
         usize::MAX as _
     }
     (b"cuCtxGetDevice", 0) => {
-        if version >= 13000 {
-            return cuCtxGetDevice_v2 as _;
-        }
         if version >= 2000 {
             return cuCtxGetDevice as _;
         }
         usize::MAX as _
     }
     (b"cuCtxGetDevice", 1) => {
-        if version >= 13000 {
-            return cuCtxGetDevice_v2 as _;
-        }
         if version >= 2000 {
             return cuCtxGetDevice as _;
         }
         usize::MAX as _
     }
     (b"cuCtxGetDevice", 2) => {
-        if version >= 13000 {
-            return cuCtxGetDevice_v2 as _;
-        }
         if version >= 2000 {
             return cuCtxGetDevice as _;
         }
@@ -909,27 +900,18 @@ match (name, flag) {
         usize::MAX as _
     }
     (b"cuCtxSynchronize", 0) => {
-        if version >= 13000 {
-            return cuCtxSynchronize_v2 as _;
-        }
         if version >= 2000 {
             return cuCtxSynchronize as _;
         }
         usize::MAX as _
     }
     (b"cuCtxSynchronize", 1) => {
-        if version >= 13000 {
-            return cuCtxSynchronize_v2 as _;
-        }
         if version >= 2000 {
             return cuCtxSynchronize as _;
         }
         usize::MAX as _
     }
     (b"cuCtxSynchronize", 2) => {
-        if version >= 13000 {
-            return cuCtxSynchronize_v2 as _;
-        }
         if version >= 2000 {
             return cuCtxSynchronize as _;
         }
@@ -1205,24 +1187,6 @@ match (name, flag) {
         }
         usize::MAX as _
     }
-    (b"cuDeviceGetHostAtomicCapabilities", 0) => {
-        if version >= 13000 {
-            return cuDeviceGetHostAtomicCapabilities as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuDeviceGetHostAtomicCapabilities", 1) => {
-        if version >= 13000 {
-            return cuDeviceGetHostAtomicCapabilities as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuDeviceGetHostAtomicCapabilities", 2) => {
-        if version >= 13000 {
-            return cuDeviceGetHostAtomicCapabilities as _;
-        }
-        usize::MAX as _
-    }
     (b"cuDeviceGetLuid", 0) => {
         if version >= 10000 {
             return cuDeviceGetLuid as _;
@@ -1292,24 +1256,6 @@ match (name, flag) {
     (b"cuDeviceGetNvSciSyncAttributes", 2) => {
         if version >= 10020 {
             return cuDeviceGetNvSciSyncAttributes as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuDeviceGetP2PAtomicCapabilities", 0) => {
-        if version >= 13000 {
-            return cuDeviceGetP2PAtomicCapabilities as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuDeviceGetP2PAtomicCapabilities", 1) => {
-        if version >= 13000 {
-            return cuDeviceGetP2PAtomicCapabilities as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuDeviceGetP2PAtomicCapabilities", 2) => {
-        if version >= 13000 {
-            return cuDeviceGetP2PAtomicCapabilities as _;
         }
         usize::MAX as _
     }
@@ -4313,24 +4259,6 @@ match (name, flag) {
         }
         usize::MAX as _
     }
-    (b"cuGreenCtxGetId", 0) => {
-        if version >= 12090 {
-            return cuGreenCtxGetId as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuGreenCtxGetId", 1) => {
-        if version >= 12090 {
-            return cuGreenCtxGetId as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuGreenCtxGetId", 2) => {
-        if version >= 12090 {
-            return cuGreenCtxGetId as _;
-        }
-        usize::MAX as _
-    }
     (b"cuGreenCtxRecordEvent", 0) => {
         if version >= 12040 {
             return cuGreenCtxRecordEvent as _;
@@ -5105,96 +5033,6 @@ match (name, flag) {
         }
         usize::MAX as _
     }
-    (b"cuLogsCurrent", 0) => {
-        if version >= 12090 {
-            return cuLogsCurrent as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsCurrent", 1) => {
-        if version >= 12090 {
-            return cuLogsCurrent as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsCurrent", 2) => {
-        if version >= 12090 {
-            return cuLogsCurrent as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsDumpToFile", 0) => {
-        if version >= 12090 {
-            return cuLogsDumpToFile as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsDumpToFile", 1) => {
-        if version >= 12090 {
-            return cuLogsDumpToFile as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsDumpToFile", 2) => {
-        if version >= 12090 {
-            return cuLogsDumpToFile as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsDumpToMemory", 0) => {
-        if version >= 12090 {
-            return cuLogsDumpToMemory as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsDumpToMemory", 1) => {
-        if version >= 12090 {
-            return cuLogsDumpToMemory as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsDumpToMemory", 2) => {
-        if version >= 12090 {
-            return cuLogsDumpToMemory as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsRegisterCallback", 0) => {
-        if version >= 12090 {
-            return cuLogsRegisterCallback as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsRegisterCallback", 1) => {
-        if version >= 12090 {
-            return cuLogsRegisterCallback as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsRegisterCallback", 2) => {
-        if version >= 12090 {
-            return cuLogsRegisterCallback as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsUnregisterCallback", 0) => {
-        if version >= 12090 {
-            return cuLogsUnregisterCallback as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsUnregisterCallback", 1) => {
-        if version >= 12090 {
-            return cuLogsUnregisterCallback as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuLogsUnregisterCallback", 2) => {
-        if version >= 12090 {
-            return cuLogsUnregisterCallback as _;
-        }
-        usize::MAX as _
-    }
     (b"cuMemAddressFree", 0) => {
         if version >= 10020 {
             return cuMemAddressFree as _;
@@ -5429,42 +5267,6 @@ match (name, flag) {
         }
         usize::MAX as _
     }
-    (b"cuMemDiscardAndPrefetchBatchAsync", 0) => {
-        if version >= 13000 {
-            return cuMemDiscardAndPrefetchBatchAsync as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemDiscardAndPrefetchBatchAsync", 1) => {
-        if version >= 13000 {
-            return cuMemDiscardAndPrefetchBatchAsync as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemDiscardAndPrefetchBatchAsync", 2) => {
-        if version >= 13000 {
-            return cuMemDiscardAndPrefetchBatchAsync_ptsz as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemDiscardBatchAsync", 0) => {
-        if version >= 13000 {
-            return cuMemDiscardBatchAsync as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemDiscardBatchAsync", 1) => {
-        if version >= 13000 {
-            return cuMemDiscardBatchAsync as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemDiscardBatchAsync", 2) => {
-        if version >= 13000 {
-            return cuMemDiscardBatchAsync_ptsz as _;
-        }
-        usize::MAX as _
-    }
     (b"cuMemExportToShareableHandle", 0) => {
         if version >= 10020 {
             return cuMemExportToShareableHandle as _;
@@ -5627,24 +5429,6 @@ match (name, flag) {
         }
         usize::MAX as _
     }
-    (b"cuMemGetDefaultMemPool", 0) => {
-        if version >= 13000 {
-            return cuMemGetDefaultMemPool as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemGetDefaultMemPool", 1) => {
-        if version >= 13000 {
-            return cuMemGetDefaultMemPool as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemGetDefaultMemPool", 2) => {
-        if version >= 13000 {
-            return cuMemGetDefaultMemPool as _;
-        }
-        usize::MAX as _
-    }
     (b"cuMemGetHandleForAddressRange", 0) => {
         if version >= 11070 {
             return cuMemGetHandleForAddressRange as _;
@@ -5687,24 +5471,6 @@ match (name, flag) {
         }
         if version >= 2000 {
             return cuMemGetInfo as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemGetMemPool", 0) => {
-        if version >= 13000 {
-            return cuMemGetMemPool as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemGetMemPool", 1) => {
-        if version >= 13000 {
-            return cuMemGetMemPool as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemGetMemPool", 2) => {
-        if version >= 13000 {
-            return cuMemGetMemPool as _;
         }
         usize::MAX as _
     }
@@ -6095,24 +5861,6 @@ match (name, flag) {
         }
         usize::MAX as _
     }
-    (b"cuMemPrefetchBatchAsync", 0) => {
-        if version >= 13000 {
-            return cuMemPrefetchBatchAsync as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemPrefetchBatchAsync", 1) => {
-        if version >= 13000 {
-            return cuMemPrefetchBatchAsync as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemPrefetchBatchAsync", 2) => {
-        if version >= 13000 {
-            return cuMemPrefetchBatchAsync_ptsz as _;
-        }
-        usize::MAX as _
-    }
     (b"cuMemRangeGetAttribute", 0) => {
         if version >= 8000 {
             return cuMemRangeGetAttribute as _;
@@ -6200,24 +5948,6 @@ match (name, flag) {
     (b"cuMemSetAccess", 2) => {
         if version >= 10020 {
             return cuMemSetAccess as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemSetMemPool", 0) => {
-        if version >= 13000 {
-            return cuMemSetMemPool as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemSetMemPool", 1) => {
-        if version >= 13000 {
-            return cuMemSetMemPool as _;
-        }
-        usize::MAX as _
-    }
-    (b"cuMemSetMemPool", 2) => {
-        if version >= 13000 {
-            return cuMemSetMemPool as _;
         }
         usize::MAX as _
     }
@@ -6378,27 +6108,18 @@ match (name, flag) {
         usize::MAX as _
     }
     (b"cuMemcpy3DBatchAsync", 0) => {
-        if version >= 13000 {
-            return cuMemcpy3DBatchAsync_v2 as _;
-        }
         if version >= 12080 {
             return cuMemcpy3DBatchAsync as _;
         }
         usize::MAX as _
     }
     (b"cuMemcpy3DBatchAsync", 1) => {
-        if version >= 13000 {
-            return cuMemcpy3DBatchAsync_v2 as _;
-        }
         if version >= 12080 {
             return cuMemcpy3DBatchAsync as _;
         }
         usize::MAX as _
     }
     (b"cuMemcpy3DBatchAsync", 2) => {
-        if version >= 13000 {
-            return cuMemcpy3DBatchAsync_v2_ptsz as _;
-        }
         if version >= 12080 {
             return cuMemcpy3DBatchAsync_ptsz as _;
         }
@@ -6555,27 +6276,18 @@ match (name, flag) {
         usize::MAX as _
     }
     (b"cuMemcpyBatchAsync", 0) => {
-        if version >= 13000 {
-            return cuMemcpyBatchAsync_v2 as _;
-        }
         if version >= 12080 {
             return cuMemcpyBatchAsync as _;
         }
         usize::MAX as _
     }
     (b"cuMemcpyBatchAsync", 1) => {
-        if version >= 13000 {
-            return cuMemcpyBatchAsync_v2 as _;
-        }
         if version >= 12080 {
             return cuMemcpyBatchAsync as _;
         }
         usize::MAX as _
     }
     (b"cuMemcpyBatchAsync", 2) => {
-        if version >= 13000 {
-            return cuMemcpyBatchAsync_v2_ptsz as _;
-        }
         if version >= 12080 {
             return cuMemcpyBatchAsync_ptsz as _;
         }

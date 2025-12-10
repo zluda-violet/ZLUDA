@@ -581,6 +581,13 @@ impl<'a, E: CudaErrorType> FromCuda<'a, cublasLtMatmulPreferenceAttributes_t, E>
             cublasLtMatmulPreferenceAttributes_t::CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES => {
                 hipblasLtMatmulPreferenceAttributes_t::HIPBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES
             }
+            // Workaround: return MAX for unsupported values we want to fail quietly
+            cublasLtMatmulPreferenceAttributes_t::CUBLASLT_MATMUL_PREF_MIN_ALIGNMENT_A_BYTES
+            | cublasLtMatmulPreferenceAttributes_t::CUBLASLT_MATMUL_PREF_MIN_ALIGNMENT_B_BYTES
+            | cublasLtMatmulPreferenceAttributes_t::CUBLASLT_MATMUL_PREF_MIN_ALIGNMENT_C_BYTES
+            | cublasLtMatmulPreferenceAttributes_t::CUBLASLT_MATMUL_PREF_MIN_ALIGNMENT_D_BYTES => {
+                hipblasLtMatmulPreferenceAttributes_t::HIPBLASLT_MATMUL_PREF_MAX
+            }
             _ => return Err(E::NOT_SUPPORTED),
         })
     }
