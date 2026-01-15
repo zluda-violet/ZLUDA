@@ -2,27 +2,33 @@ use cuda_types::cublas::*;
 use hip_runtime_sys::hipStream_t;
 use rocblas_sys::*;
 use std::mem;
-use zluda_common::{from_cuda_object, ZludaObject};
+use zluda_common::{constants, from_cuda_object, ZludaObject};
 
+// This is repr(c) because it needs to be compatible with BlasHandle in zluda_blaslt.
+#[repr(C)]
 pub struct Handle {
+    blas_lt: usize,
     handle: rocblas_handle,
 }
 
 impl Handle {
     fn new() -> Self {
         Self {
+            blas_lt: 0,
             handle: unsafe { mem::zeroed() },
         }
     }
 }
 
 impl ZludaObject for Handle {
-    const COOKIE: usize = 0x57c3fdb0fd72b08e;
-
+    const COOKIE: usize = constants::BLAS_HANDLE_COOKIE;
     type Error = cublasError_t;
     type CudaHandle = cublasHandle_t;
-
     fn drop_checked(&mut self) -> cublasStatus_t {
+        // Ignore any errors from destroying embedded blas_lt handle. It may have already been destroyed.
+        let _ = unsafe { zluda_blaslt::cublasLtDestroy(std::mem::transmute(self.blas_lt)) };
+        unsafe { rocblas_sys::rocblas_destroy_handle(self.handle) }?;
+
         Ok(())
     }
 }
@@ -41,6 +47,7 @@ pub(crate) fn unimplemented() -> cublasStatus_t {
 
 pub(crate) fn create_v2(handle: &mut cublasHandle_t) -> cublasStatus_t {
     let mut zluda_blas_handle = Handle::new();
+    unsafe { zluda_blaslt::cublasLtCreate(std::mem::transmute(&mut zluda_blas_handle.blas_lt))? };
     unsafe { rocblas_create_handle(&mut zluda_blas_handle.handle) }?;
     *handle = Handle::wrap(zluda_blas_handle);
     Ok(())
@@ -404,4 +411,114 @@ pub(crate) unsafe fn get_vector(
     incy: ::core::ffi::c_int,
 ) -> rocblas_status {
     rocblas_get_vector(n, elem_size, x, incx, y, incy)
+}
+
+#[cfg(test)]
+mod tests {
+    use cuda_macros::test_cuda;
+
+    use crate::tests::CublasApi;
+    use crate::tests::CublasLtApi;
+
+    #[test_cuda]
+    fn create_destroy(api: impl CublasApi) {
+        let mut handle = unsafe { std::mem::zeroed() };
+        api.cublasCreate_v2(&mut handle);
+        api.cublasDestroy_v2(handle);
+    }
+
+    #[test_cuda]
+    fn can_pass_into_blaslt(api: impl CublasApi) {
+        use cuda_types::cublas::cublasComputeType_t;
+        use cuda_types::cuda::cudaDataType_t;
+
+        let mut handle = unsafe { std::mem::zeroed() };
+        api.cublasCreate_v2(&mut handle);
+
+        let mut pref = unsafe { std::mem::zeroed() };
+        api.blaslt().cublasLtMatmulPreferenceCreate(&mut pref);
+
+        let mut matmul_desc = unsafe { std::mem::zeroed() };
+        api.blaslt().cublasLtMatmulDescCreate(
+            &mut matmul_desc,
+            cublasComputeType_t::CUBLAS_COMPUTE_32F,
+            cudaDataType_t::CUDA_R_32F,
+        );
+
+        let m: u64 = 64;
+        let n: u64 = 64;
+        let k: u64 = 64;
+
+        let mut a_desc = unsafe { std::mem::zeroed() };
+        api.blaslt().cublasLtMatrixLayoutCreate(
+            &mut a_desc,
+            cudaDataType_t::CUDA_R_32F,
+            m,
+            k,
+            m as i64,
+        );
+
+        let mut b_desc = unsafe { std::mem::zeroed() };
+        api.blaslt().cublasLtMatrixLayoutCreate(
+            &mut b_desc,
+            cudaDataType_t::CUDA_R_32F,
+            k,
+            n,
+            k as i64,
+        );
+
+        let mut c_desc = unsafe { std::mem::zeroed() };
+        api.blaslt().cublasLtMatrixLayoutCreate(
+            &mut c_desc,
+            cudaDataType_t::CUDA_R_32F,
+            m,
+            n,
+            m as i64,
+        );
+
+        let mut d_desc = unsafe { std::mem::zeroed() };
+        api.blaslt().cublasLtMatrixLayoutCreate(
+            &mut d_desc,
+            cudaDataType_t::CUDA_R_32F,
+            m,
+            n,
+            m as i64,
+        );
+
+        let mut heuristic_result = unsafe { std::mem::zeroed() };
+        let mut return_algo_count: i32 = 0;
+        api.blaslt().cublasLtMatmulAlgoGetHeuristic(
+            unsafe { std::mem::transmute(handle) },
+            matmul_desc,
+            a_desc,
+            b_desc,
+            c_desc,
+            d_desc,
+            pref,
+            1,
+            &mut heuristic_result,
+            &mut return_algo_count,
+        );
+
+        api.blaslt().cublasLtMatrixLayoutDestroy(d_desc);
+        api.blaslt().cublasLtMatrixLayoutDestroy(c_desc);
+        api.blaslt().cublasLtMatrixLayoutDestroy(b_desc);
+        api.blaslt().cublasLtMatrixLayoutDestroy(a_desc);
+        api.blaslt().cublasLtMatmulDescDestroy(matmul_desc);
+        api.blaslt().cublasLtMatmulPreferenceDestroy(pref);
+        api.cublasDestroy_v2(handle);
+    }
+
+    #[test_cuda]
+    fn lt_destroy_blas_handle(api: impl CublasApi) {
+        let mut handle = unsafe { std::mem::zeroed() };
+        api.cublasCreate_v2(&mut handle);
+        println!("Created handle: {:?}", handle);
+        api.blaslt()
+            .cublasLtDestroy(unsafe { std::mem::transmute(handle) });
+        let mut math_mode = unsafe { std::mem::zeroed() };
+        api.cublasGetMathMode(handle, &mut math_mode);
+        println!("Math mode after blaslt destroy: {:?}", math_mode);
+        api.cublasDestroy_v2(handle);
+    }
 }
